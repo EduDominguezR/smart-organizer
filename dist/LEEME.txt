@@ -1,0 +1,109 @@
+SMART ORGANIZER 0.1.0
+=====================
+
+Smart Organizer ordena una carpeta como Descargas o el Escritorio. Antes de
+mover nada enseña el destino de cada archivo, mueve solo lo que apruebas y
+anota cada lote para que puedas deshacerlo.
+
+Windows 10/11, 64 bits. No necesita instalador ni permisos de administrador.
+
+ARCHIVOS
+--------
+Smart Organizer.exe       Aplicación con interfaz y vigilante oculto.
+smart-organizer-cli.exe   Versión de consola.
+SHA256SUMS.txt            SHA-256 de cada archivo de esta versión.
+LEEME.txt                 Este archivo.
+README.txt                Instructions in English.
+
+EMPEZAR EN TRES PASOS
+---------------------
+1. Abre Smart Organizer.exe y pulsa «Añadir carpeta». Elige Descargas o
+   Escritorio, o suelta una carpeta en la ventana.
+2. Abre «Vista previa» y revisa el origen, el destino y el tamaño de cada
+   archivo. Desmarca lo que quieras dejar quieto.
+3. Pulsa «Organizar ahora». Abre «Historial» si necesitas deshacer el lote.
+
+SEGURIDAD
+---------
+La acción normal es mover, no borrar. Lo que no encaja en ningún grupo se queda
+donde está. La papelera se usa solo con una regla de Papelera explícita o cuando
+eliges duplicados y pulsas «Enviar a la papelera». Antes de mover duplicados, la
+app comprueba que la copia que conservas existe y que su hash completo coincide.
+Se omiten archivos ocultos, restos de descargas, enlaces simbólicos y carpetas
+protegidas del sistema.
+
+Si una pasada se interrumpe, al arrancar la app revisa cada entrada pendiente del
+diario. Si existen el origen y el destino, compara tamaño y BLAKE3, marca la
+entrada como «necesita revisión», no borra nada y avisa en Historial. Una pasada
+fallida del vigilante se captura y se anota; la interfaz puede reintentarla con
+esperas cortas, hasta cinco intentos en diez minutos.
+
+DATOS
+-----
+Los ajustes y el historial están en:
+
+  %APPDATA%\smart-organizer\config.toml
+  %APPDATA%\smart-organizer\config.toml.bak
+  %APPDATA%\smart-organizer\journal.jsonl
+  %APPDATA%\smart-organizer\error.log
+
+Abre esa carpeta desde Ajustes > Datos.
+
+Al guardar se escribe config.toml.tmp, se sincroniza y se sustituye config.toml
+de forma atómica. El archivo anterior se copia a config.toml.bak; la copia
+config.toml.v{version}.bak de antes de migrar se crea una vez y nunca se
+sobrescribe. Si el reemplazo falla, el config.toml anterior sigue siendo válido.
+Los temporales terminan en .tmp.
+
+Modo portable: crea una carpeta llamada «portable» junto a Smart Organizer.exe
+antes de arrancar. Entonces config.toml y journal.jsonl se guardan al lado del
+ejecutable. Borra esa carpeta para volver a %APPDATA%.
+
+Copia de seguridad: cierra la app y copia config.toml y journal.jsonl.
+Reinicio: Ajustes > Datos > Restablecer ajustes, o borra la carpeta de datos
+después de hacer una copia. Si borras el diario, ya no podrás deshacer lotes
+antiguos. La app nunca borra tus documentos.
+
+SMARTSCREEN Y SHA-256
+---------------------
+Esta versión no está firmada. SmartScreen puede mostrar «Windows protegió tu
+PC»; es lo normal en un ejecutable nuevo sin firmar. Comprueba primero el hash y
+usa «Más información > Ejecutar de todos modos» solo si confías en el archivo. No
+desactives SmartScreen de forma global. Un SHA-256 coincidente demuestra que el
+archivo es el mismo cuyo hash publicó el autor y que no se corrompió al
+descargarlo; no demuestra que el programa sea seguro ni que el autor sea de
+confianza.
+
+SHA-256 de Smart Organizer.exe:
+  77CF5BB77DBAC252056A7E793EF7C4E366025C688D6068497A9CF1EA1D4B767E
+
+En PowerShell:
+
+  Get-FileHash ".\Smart Organizer.exe" -Algorithm SHA256
+  Get-Content .\SHA256SUMS.txt
+
+VIGILANCIA Y BANDEJA
+--------------------
+La vigilancia corre en un proceso oculto aparte. Al cerrar la ventana con la
+vigilancia activa, queda en la bandeja. Si la vigilancia falla, la interfaz
+reintenta tras 1, 2, 4, 8 y 16 segundos, como máximo cinco intentos en diez
+minutos; después muestra un aviso y deja de reintentar. Usa «Reiniciar
+vigilancia» en Ajustes > Vigilancia, Inicio, la vista sencilla, la barra de
+estado o la bandeja. Si la interfaz no puede abrirse, ejecuta Smart Organizer.exe
+--watch para seguir vigilando; el motivo queda en error.log.
+
+PRIVACIDAD
+----------
+La app lee solo las carpetas que añades. No tiene telemetría, cuenta, anuncios,
+actualizador ni cliente de red. Las lecturas de hash y los metadatos se quedan en
+este equipo.
+
+LICENCIA Y SOPORTE
+------------------
+Los metadatos del paquete declaran MIT.
+
+TODO: añadir un archivo LICENSE y el titular de los derechos.
+TODO: añadir la URL del repositorio público.
+TODO: añadir un contacto de soporte o un gestor de incidencias.
+
+Hasta entonces, los archivos se ofrecen tal cual, sin compromiso de soporte.

@@ -1,0 +1,92 @@
+[package]
+name = "smart-organizer"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Ordena archivos por reglas, con vista previa antes de mover y deshacer"
+license = "MIT"
+
+[lib]
+name = "smart_organizer"
+path = "src/lib.rs"
+
+[[bin]]
+name = "smart-organizer"
+path = "src/main.rs"
+required-features = ["gui"]
+
+[[bin]]
+name = "smart-organizer-cli"
+path = "src/bin/smart-organizer-cli.rs"
+required-features = ["cli"]
+
+[features]
+default = ["gui", "cli"]
+# Marca el binario sin interfaz. Es el que corre todo el dia como residente.
+cli = []
+gui = ["dep:eframe", "dep:rfd"]
+# X11 y Wayland solo existen en Linux; en Windows estas features no enlazan nada.
+gui-linux = ["eframe?/x11", "eframe?/wayland"]
+regex-rules = ["dep:regex-lite"]
+
+[dependencies]
+# Ajustes y entradas del diario.
+serde = { version = "1.0", features = ["derive"] }
+# Diario JSON Lines: una operacion por linea, con group commit.
+serde_json = "1.0"
+# Ajustes en texto que el usuario puede leer sin herramientas.
+toml = "1.1"
+# Ruta de configuracion propia de cada sistema.
+dirs = "7.0"
+# Eventos del sistema de archivos; el debounce de 1.2 s lo aplicamos nosotros.
+notify = "8.2"
+# Globs compilados una vez por regla, no por archivo.
+globset = "0.4"
+# Hash para verificar copias entre discos y agrupar duplicados.
+blake3 = "1.8"
+# Tipo real por firma de bytes, para detectar extensiones que mienten.
+infer = "0.22"
+# Fechas ISO del diario y offset local resuelto una sola vez al arrancar.
+time = { version = "0.3", features = ["formatting", "local-offset", "macros", "parsing"] }
+# Quita el prefijo \\?\ al mostrar rutas en Windows y conserva rutas largas al operar.
+dunce = "1.0"
+# Papelera del sistema, sin arrastrar chrono.
+trash = { version = "5.2", default-features = false, features = ["coinit_apartmentthreaded"] }
+
+# Reglas por patron regular, solo con la feature regex-rules.
+regex-lite = { version = "0.1", optional = true }
+
+# UI sin webview. glow en lugar de wgpu: no compila shaders en runtime y pesa menos en reposo.
+eframe = { version = "0.37", default-features = false, features = ["glow", "default_fonts", "accesskit"], optional = true }
+# Selector de carpeta nativo. Sin common-controls-v6: solo usa IFileDialog y evita
+# que el manifiesto de los cuadros de dialogo rompa los binarios de test.
+rfd = { version = "0.17", default-features = false, optional = true }
+
+[dev-dependencies]
+# Directorios temporales para los tests de movimiento y deshacer.
+tempfile = "3.27"
+
+[profile.release]
+# "s" reduce el ejecutable ~1,6 MB frente a 3 sin cambiar el consumo en reposo.
+opt-level = "s"
+lto = "fat"
+codegen-units = 1
+# Unwind permite que el vigilante capture un fallo de una pasada y siga vivo.
+# El binario crece; la alternativa es que un solo archivo raro tumbe el proceso.
+panic = "unwind"
+strip = true
+
+[profile.dev]
+opt-level = 1
+
+# Las dependencias se compilan optimizadas en dev para que egui no arrastre al depurador.
+[profile.dev.package."*"]
+opt-level = 2
+
+[target."cfg(windows)".dependencies]
+single-instance = "0.3.3"
+tray-icon = { version = "0.24.2", default-features = false }
+winreg = "0.56.0"
+
+[target."cfg(windows)".build-dependencies]
+winres = "0.1.12"
